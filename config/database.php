@@ -19,7 +19,7 @@ return [
     'connections' => [
         'sqlite' => [
             'driver'   => 'sqlite',
-            'database' =>  __DIR__ . "/../database.db",
+            'database' =>  __DIR__ . "/../_database.db",
             'prefix'   => '',
         ],
     ],

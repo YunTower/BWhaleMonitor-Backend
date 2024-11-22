@@ -4,14 +4,14 @@ namespace app\model;
 
 use support\Model;
 
-class Test extends Model
+class Config extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'test';
+    protected $table = 'yt_monitor_config';
 
     /**
      * The primary key associated with the table.

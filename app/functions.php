@@ -1,5 +1,7 @@
 <?php
 
+use support\Db;
+use support\Log;
 use support\Response;
 
 //json
@@ -43,3 +45,82 @@ function success($msg = 'success', $data = null, $header = []): Response
 {
     return new Response(200, ['Content-Type' => 'application/json'] + $header, json_encode(['code' => 0, 'msg' => $msg, 'data' => $data]));
 }
+
+/**
+ * 检测安装状态
+ */
+function check_install(): bool
+{
+    return file_exists(base_path('install.lock'));
+}
+
+/**
+ * 检测数据表是否存在
+ *
+ * @param string $mode 模式：'all' - 检查所有表是否存在，'any' - 检查至少有一张表存在
+ * @param bool $returnMissingTables 是否返回缺失的表名数组
+ * @return bool|array
+ */
+function check_tables_existence(string $mode = 'all', bool $returnMissingTables = false): bool|array
+{
+    $tables = ['yt_monitor_server', 'yt_monitor_log', 'yt_monitor_config'];
+    $missingTables = [];
+
+    foreach ($tables as $table) {
+        if (!Db::schema()->hasTable($table)) {
+            $missingTables[] = $table;
+        }
+    }
+
+    if ($mode === 'all') {
+        if (empty($missingTables)) {
+            return true;
+        } else {
+            return $returnMissingTables ? $missingTables : false;
+        }
+    } elseif ($mode === 'any') {
+        return count($missingTables) < count($tables);
+    }
+
+    return false;
+}
+
+/**
+ * 删除数据表
+ *
+ * @param array|string|null $tables 要删除的数据表名，为空或 "all" 则删除所有表
+ * @return bool
+ * @throws Exception
+ */
+function drop_tables(array|string $tables = null): bool
+{
+    // 数据表名白名单
+    $whitelist = ['yt_monitor_server', 'yt_monitor_log', 'yt_monitor_config'];
+
+    // 处理传入参数
+    if ($tables === null || $tables === 'all') {
+        $tables = $whitelist;
+    } elseif (is_string($tables)) {
+        $tables = [$tables];
+    } elseif (!is_array($tables)) {
+        throw new Exception("无效的参数类型: " . gettype($tables));
+    }
+
+    // 检测传入的表名是否在白名单中
+    foreach ($tables as $table) {
+        if (!in_array($table, $whitelist)) {
+            throw new Exception("尝试删除未授权的数据表: $table");
+        }
+    }
+
+    foreach ($tables as $table) {
+        try {
+            Db::schema()->dropIfExists($table);
+        } catch (Exception $e) {
+            throw new Exception('删除数据表失败：' . $e->getMessage());
+        }
+    }
+
+    return true;
+}
+

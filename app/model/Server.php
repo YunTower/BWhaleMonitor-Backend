@@ -20,10 +20,14 @@ class Server extends Model
      */
     protected $primaryKey = 'id';
 
+    protected $fillable = [
+        'id', 'name', 'os', 'ip', 'location', 'cpu', 'memory', 'disk', 'status', 'uptime', 'created_at', 'updated_at'
+    ];
+
     /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 }

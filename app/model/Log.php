@@ -20,6 +20,8 @@ class Log extends Model
      */
     protected $primaryKey = 'id';
 
+    protected $fillable = ['id', 'server_id', 'name', 'value', 'created'];
+
     /**
      * Indicates if the model should be timestamped.
      *

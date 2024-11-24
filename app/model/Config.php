@@ -20,10 +20,12 @@ class Config extends Model
      */
     protected $primaryKey = 'id';
 
+    protected $fillable = ['id', 'name', 'value', 'created_at', 'updated_at'];
+
     /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 }

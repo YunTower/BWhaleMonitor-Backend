@@ -51,7 +51,7 @@ function success($msg = 'success', $data = null, $header = []): Response
  */
 function check_install(): bool
 {
-    return file_exists(base_path('install.lock'));
+    return file_exists(base_path('config/install.lock'));
 }
 
 /**

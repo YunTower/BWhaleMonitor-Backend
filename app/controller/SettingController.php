@@ -22,7 +22,7 @@ class SettingController
              * 检测是否有安装完成
              */
             if (check_install()) {
-                throw new Exception('系统已安装');
+                throw new Exception('系统已安装，请勿重复操作');
             } else {
                 /**
                  * 检测是否有未安装完成导致残留的数据表
@@ -30,9 +30,8 @@ class SettingController
                 try {
                     $check_tables = check_tables_existence('any');
                     if ($check_tables) {
-                        throw new Exception('检测到数据表残留，请先删除数据表再安装');
+                        throw new Exception('检测到数据表残留，请先删除残留的数据表后再安装');
                     }
-                    drop_tables($check_tables);
                 } catch (Exception $e) {
                     Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
                     return serverError($e->getMessage());
@@ -44,14 +43,13 @@ class SettingController
              */
             try {
                 $v = v::input($request->post(), [
-                    'title' => v::notEmpty()->length(0, 50)->setName('title'),
-                    'username' => v::notEmpty()->length(0, 50)->setName('username'),
+                    'title' => v::notEmpty()->length(4, 50)->setName('title'),
+                    'username' => v::notEmpty()->length(8, 50)->setName('username'),
                     'password' => v::notEmpty()->length(8, 50)->setName('password')
                 ]);
             } catch (ValidationException $e) {
                 return badRequest($e->getMessage());
             }
-
 
             /**
              * 创建数据表
@@ -68,7 +66,7 @@ class SettingController
                     $table->string('disk');
                     $table->string('status');
                     $table->string('uptime');
-                    $table->dateTime('created');
+                    $table->timestamps();
                 });
                 Db::schema()->create('yt_monitor_log', function (Blueprint $table) {
                     $table->increments('id');
@@ -76,12 +74,11 @@ class SettingController
                     $table->string('name');
                     $table->string('value');
                     $table->string('created');
-                    $table->timestamps();
                 });
                 Db::schema()->create('yt_monitor_config', function (Blueprint $table) {
                     $table->increments('id');
                     $table->string('name');
-                    $table->string('value');
+                    $table->string('value')->nullable();
                     $table->timestamps();
                 });
             } catch (QueryException $e) {
@@ -107,13 +104,13 @@ class SettingController
                     'guest_password' => null
                 ];
             foreach ($data as $key => $value) {
-                Config::updateOrInsert(['name' => $key, 'value' => $value]);
+                Config::create(['name' => $key, 'value' => $value]);
             }
 
             /**
              * 生成锁定文件
              */
-            $lock_file = __DIR__ . '/../../../config/install.lock';
+            $lock_file = __DIR__ . '/../../config/install.lock';
             $lock_data = [
                 'time' => time()
             ];

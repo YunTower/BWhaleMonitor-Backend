@@ -1,7 +1,8 @@
-# BWhaleMonitor-PanelBackend
+# BWhaleMonitor-Backend
 
 BWhaleMonitor 蓝鲸服务器探针主控面板后端仓库
 
+主仓库：https://github.com/YunTower/BWhaleMonitor
 
 ## 本项目由以下工具/项目提供支持
 - JetBrains IDE (PhpStorm)
@@ -9,6 +10,7 @@ BWhaleMonitor 蓝鲸服务器探针主控面板后端仓库
 - WorkerMan
   - workerman/webman-framework
   - workerman/validation
+  - webman/captcha
 - Laravel
   - laravel/serializable-closure
 - illuminate

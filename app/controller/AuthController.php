@@ -61,7 +61,10 @@ class AuthController
             setcookie('login', true, time() + 60 * 60 * 24 * 15, '/', '', false, true);
             setcookie('role', 'admin', time() + 60 * 60 * 24 * 15, '/', '', false, true);
 
-            return success();
+            return success('登录成功', [
+                'username' => $v['username'],
+                'role' => 'admin'
+            ]);
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());
@@ -96,11 +99,14 @@ class AuthController
                 return badRequest('密码错误');
             }
 
-            Log::info("访客");
+            Log::info('访客【' . $request->getRealIp() . '】于' . date('Y-md-m-Y H-i-s') . '登录了系统');
             setcookie('login', true, time() + 60 * 60 * 24 * 15, '/', '', false, true);
             setcookie('role', 'visitor', time() + 60 * 60 * 24 * 15, '/', '', false, true);
 
-            return success();
+            return success('登录成功', [
+                'username' => '访客 ' . $request->getRealIp(),
+                'role' => 'visitor'
+            ]);
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());

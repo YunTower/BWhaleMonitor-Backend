@@ -18,7 +18,7 @@ class Config extends Model
      *
      * @var string
      */
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'name';
 
     protected $fillable = ['id', 'name', 'value', 'created_at', 'updated_at'];
 

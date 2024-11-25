@@ -100,8 +100,8 @@ class SettingController
             $v['password'] = password_hash($v['password'], PASSWORD_DEFAULT);
             $data = $v + [
                     'interval' => 5,
-                    'guest' => false,
-                    'guest_password' => null
+                    'visitor' => false,
+                    'visitor_password' => null
                 ];
             foreach ($data as $key => $value) {
                 Config::create(['name' => $key, 'value' => $value]);
@@ -132,8 +132,8 @@ class SettingController
                     'username' => v::notEmpty()->length(0, 50)->setName('username'),
                     'password' => v::notEmpty()->length(8, 50)->setName('password'),
                     'interval' => v::intVal()->between(1, 60)->setName('interval'),
-                    'guest' => v::boolVal()->setName('guest'),
-                    'guest_password' => v::nullable(v::length(8, 50))->setName('guest_password')
+                    'visitor' => v::boolVal()->setName('visitor'),
+                    'visitor_password' => v::nullable(v::length(8, 50))->setName('visitor_password')
                 ]);
             } catch (ValidationException $e) {
                 return badRequest($e->getMessage());

@@ -151,19 +151,19 @@ class SettingController
     {
         try {
             try {
-                $v = v::input($request->post(), [
+                $v = v::input($request->get(), [
                     'columns' => v::notEmpty()->stringType()->setName('columns'),
                 ]);
             } catch (ValidationException $e) {
                 return badRequest($e->getMessage());
             }
 
-            $config = [];
+            $configs = [];
             $columns = explode(',', $v['columns']);
             foreach ($columns as $column) {
-                $config[$column] = Config::get($column);
+                $configs[$column] = Config::find($column)->value;
             }
-            return success('success', $config);
+            return success('success', $configs);
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());

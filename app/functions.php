@@ -13,31 +13,31 @@ function response_json($status, $data = null, $code = 0, $msg = 'success'): Resp
 // 404
 function notFound($msg = 'Not Found 资源不存在'): Response
 {
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode(['code' => 1404, 'msg' => $msg]));
+    return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'msg' => $msg]));
 }
 
 // 500
 function serverError($msg = 'Server Error 服务器错误'): Response
 {
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode(['code' => 1500, 'msg' => $msg]));
+    return new Response(500, ['Content-Type' => 'application/json'], json_encode(['code' => 500, 'msg' => $msg]));
 }
 
 // 403
 function forbidden($msg = 'Forbidden 禁止访问'): Response
 {
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode(['code' => 1403, 'msg' => $msg]));
+    return new Response(403, ['Content-Type' => 'application/json'], json_encode(['code' => 403, 'msg' => $msg]));
 }
 
 // 401
 function unauthorized($msg = 'Unauthorized 未授权'): Response
 {
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode(['code' => 1401, 'msg' => $msg]));
+    return new Response(401, ['Content-Type' => 'application/json'], json_encode(['code' => 401, 'msg' => $msg]));
 }
 
 // 400
 function badRequest($msg = 'Bad Request 请求错误'): Response
 {
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode(['code' => 1400, 'msg' => $msg]));
+    return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'msg' => $msg]));
 }
 
 // success

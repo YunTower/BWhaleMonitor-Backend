@@ -161,7 +161,9 @@ class SettingController
             $configs = [];
             $columns = explode(',', $v['columns']);
             foreach ($columns as $column) {
-                $configs[$column] = Config::find($column)->value;
+                $_column = Config::find($column);
+                if (!$_column->exists) continue;
+                $configs[$column] = $_column->value;
             }
             return success('success', $configs);
         } catch (Exception $e) {

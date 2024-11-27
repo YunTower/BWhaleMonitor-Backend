@@ -163,7 +163,12 @@ class SettingController
             foreach ($columns as $column) {
                 $_column = Config::find($column);
                 if (!$_column) continue;
-                $configs[$column] = $_column->value;
+                if ($column == 'visitor_password') {
+                    $value = $_column->value;
+                    $configs[$column] = !(($value == null));
+                } else {
+                    $configs[$column] = $_column->value;
+                }
             }
             return success('success', $configs);
         } catch (Exception $e) {

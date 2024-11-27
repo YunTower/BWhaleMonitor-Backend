@@ -76,7 +76,7 @@ class AuthController
         try {
             try {
                 $v = v::input($request->post(), [
-                    'password' => v::notEmpty()->length(8, 50)->setName('password'),
+                    'password' => v::nullable(v::length(8, 50))->setName('password'),
                     'captcha' => v::notEmpty()->length(6, 6)->setName('captcha')
                 ]);
             } catch (ValidationException $e) {
@@ -87,12 +87,13 @@ class AuthController
                 return badRequest('验证码错误');
             }
 
-            if (!preg_match('/^(?=.*[a-zA-Z])(?=.*\d).{8,50}$/', $v['password'])) {
-                return badRequest('密码错误');
-            }
-
             if (Config::find('visitor')->value != 1) {
                 return badRequest('管理员未开启游客访问功能');
+            }
+
+            $need_password = !((Config::find('visitor_password')->value == null));
+            if ($need_password && !preg_match('/^(?=.*[a-zA-Z])(?=.*\d).{8,50}$/', $v['password'])) {
+                return badRequest('密码错误');
             }
 
             if (Config::find('visitor_password')->value != $v['password']) {

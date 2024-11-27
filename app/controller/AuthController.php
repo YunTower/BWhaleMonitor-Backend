@@ -58,13 +58,14 @@ class AuthController
                 return badRequest('密码错误');
             }
 
-            setcookie('login', true, time() + 60 * 60 * 24 * 15, '/', '', false, true);
-            setcookie('role', 'admin', time() + 60 * 60 * 24 * 15, '/', '', false, true);
-
-            return success('登录成功', [
-                'username' => $v['username'],
-                'role' => 'admin'
+            $response = response();
+            $response->withHeaders([
+                'Content-Type' => 'application/json',
             ]);
+            $token_expire = time() + 60 * 60 * 24 * 15;
+            $response->cookie('token', base64_encode(json_encode(['username' => $v['username'], 'ip' => $request->getRealIp(), 'role' => 'admin', 'exp' => $token_expire])), $token_expire, '/', '', false, true);
+            $response->withBody(json_encode(['code' => 0, 'msg' => 'success', 'data' => ['username' => $v['username'], 'role' => 'admin']]));
+            return $response;
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());
@@ -100,16 +101,61 @@ class AuthController
             }
 
             Log::info('访客【' . $request->getRealIp() . '】于' . date('Y-md-m-Y H-i-s') . '登录了系统');
-            setcookie('login', true, time() + 60 * 60 * 24 * 15, '/', '', false, true);
-            setcookie('role', 'visitor', time() + 60 * 60 * 24 * 15, '/', '', false, true);
 
-            return success('登录成功', [
-                'username' => '访客 ' . $request->getRealIp(),
-                'role' => 'visitor'
+            $response = response();
+            $response->withHeaders([
+                'Content-Type' => 'application/json',
             ]);
+            $token_expire = time() + 60 * 60;
+            $response->cookie('token', base64_encode(json_encode(['username' => '访客 ' . $request->getRealIp(), 'ip' => $request->getRealIp(), 'role' => 'visitor', 'exp' => $token_expire])), $token_expire, '/', '', false, true);
+            $response->withBody(json_encode(['code' => 0, 'msg' => 'success', 'data' => ['username' => '访客 ' . $request->getRealIp(), 'role' => 'visitor']]));
+            return $response;
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());
         }
+    }
+
+    public function check(Request $request): \support\Response
+    {
+        try {
+            if (!$request->cookie('token')) {
+                return unauthorized();
+            }
+            $token = json_decode(base64_decode($request->cookie('token')), true);
+            if (isset($token['exp']) && $token['exp'] < time()) {
+                return unauthorized();
+            }
+
+            if (isset($token['ip']) && ($token['ip'] != $request->getRealIp())) {
+                return unauthorized();
+            }
+
+            if ($token['role'] == 'admin') {
+                $user = Config::where('username', $token['username']);
+                if (!$user) {
+                    return unauthorized();
+                }
+
+                return success('success', ['username' => $token['username'], 'role' => $token['role']]);
+            }
+
+            if ($token['role'] == 'visitor') {
+                return success('success', ['username' => $token['username'], 'role' => $token['role']]);
+            }
+
+            return unauthorized();
+        } catch (Exception) {
+            return unauthorized();
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        if (!$request->cookie('token')) {
+            return unauthorized();
+        }
+
+
     }
 }

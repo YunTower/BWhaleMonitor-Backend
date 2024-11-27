@@ -4,18 +4,17 @@ namespace app\controller;
 
 use app\model\Config;
 use Exception;
-use http\Cookie;
 use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator as v;
-use support\Db;
 use support\Log;
 use support\Request;
+use support\Response;
 use Webman\Captcha\CaptchaBuilder;
 
 class AuthController
 {
 
-    public function captcha(Request $request): \support\Response
+    public function captcha(Request $request): Response
     {
         // 初始化验证码类
         $builder = new CaptchaBuilder(6);
@@ -29,7 +28,7 @@ class AuthController
         return response($img_content, 200, ['Content-Type' => 'image/jpeg']);
     }
 
-    public function admin(Request $request): \support\Response
+    public function admin(Request $request): Response
     {
         try {
             try {
@@ -72,7 +71,7 @@ class AuthController
         }
     }
 
-    public function visitor(Request $request): \support\Response
+    public function visitor(Request $request): Response
     {
         try {
             try {
@@ -116,7 +115,7 @@ class AuthController
         }
     }
 
-    public function check(Request $request): \support\Response
+    public function check(Request $request): Response
     {
         try {
             if (!$request->cookie('token')) {
@@ -124,17 +123,17 @@ class AuthController
             }
             $token = json_decode(base64_decode($request->cookie('token')), true);
             if (isset($token['exp']) && $token['exp'] < time()) {
-                return unauthorized();
+                return unauthorized('登录状态已失效');
             }
 
             if (isset($token['ip']) && ($token['ip'] != $request->getRealIp())) {
-                return unauthorized();
+                return unauthorized('未授权的IP地址');
             }
 
             if ($token['role'] == 'admin') {
                 $user = Config::where('username', $token['username']);
                 if (!$user) {
-                    return unauthorized();
+                    return unauthorized('用户不存在');
                 }
 
                 return success('success', ['username' => $token['username'], 'role' => $token['role']]);
@@ -150,12 +149,18 @@ class AuthController
         }
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): Response
     {
         if (!$request->cookie('token')) {
             return unauthorized();
         }
 
-
+        $response = response();
+        $response->withHeaders([
+            'Content-Type' => 'application/json',
+        ]);
+        $response->cookie('token', '', -1, '/', '', false, true);
+        $response->withBody(json_encode(['code' => 0, 'msg' => 'success']));
+        return $response;
     }
 }

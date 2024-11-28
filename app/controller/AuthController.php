@@ -14,6 +14,8 @@ use Webman\Captcha\CaptchaBuilder;
 class AuthController
 {
 
+    protected $noNeedLogin = ['captcha', 'admin', 'guest'];
+
     public function captcha(Request $request): Response
     {
         // 初始化验证码类
@@ -119,29 +121,19 @@ class AuthController
     public function check(Request $request): Response
     {
         try {
-            if (!$request->cookie('token')) {
-                return unauthorized();
-            }
-            $token = json_decode(base64_decode($request->cookie('token')), true);
-            if (isset($token['exp']) && $token['exp'] < time()) {
-                return unauthorized('登录状态已失效');
-            }
+            $user = $request->user;
 
-            if (isset($token['ip']) && ($token['ip'] != $request->getRealIp())) {
-                return unauthorized('未授权的IP地址');
-            }
-
-            if ($token['role'] == 'admin') {
-                $user = Config::where('username', $token['username']);
-                if (!$user) {
+            if ($user['role'] == 'admin') {
+                $_user = Config::where('username', $user['username']);
+                if (!$_user) {
                     return unauthorized('用户不存在');
                 }
 
-                return success('success', ['username' => $token['username'], 'role' => $token['role']]);
+                return success('success', ['username' => $_user->username, 'role' => $_user->role]);
             }
 
-            if ($token['role'] == 'visitor') {
-                return success('success', ['username' => $token['username'], 'role' => $token['role']]);
+            if ($user['role'] == 'visitor') {
+                return success('success', ['username' => $user['username'], 'role' => $user['role']]);
             }
 
             return unauthorized();

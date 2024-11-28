@@ -13,7 +13,7 @@
  */
 
 return [
-    ''=>[
+    '' => [
         app\middleware\AuthCheck::class
     ]
 ];

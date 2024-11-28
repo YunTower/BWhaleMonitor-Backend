@@ -15,6 +15,8 @@ use support\Response;
 
 class SettingController
 {
+    protected $noNeedLogin = ['install', 'get'];
+
     public function install(Request $request): Response
     {
         try {
@@ -159,10 +161,13 @@ class SettingController
             }
 
             $configs = [];
+            $openColumns = ['title', 'interval', 'visitor', 'visitor_password'];
+
             $columns = explode(',', $v['columns']);
             foreach ($columns as $column) {
                 $_column = Config::find($column);
                 if (!$_column) continue;
+                if (!in_array($column, $openColumns) && $request->user['role'] != 'admin') continue;
                 if ($column == 'visitor_password') {
                     $value = $_column->value;
                     $configs[$column] = !(($value == null));

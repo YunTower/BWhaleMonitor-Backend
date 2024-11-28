@@ -4,6 +4,7 @@ namespace app\controller;
 
 use app\model\Config;
 use Exception;
+use Illuminate\Contracts\Validation\ValidatorAwareRule;
 use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator as v;
 use support\Log;
@@ -129,6 +130,8 @@ class AuthController
                     return unauthorized('用户不存在');
                 }
 
+                var_dump($_user->get());
+
                 return success('success', ['username' => $_user->username, 'role' => $_user->role]);
             }
 
@@ -137,7 +140,8 @@ class AuthController
             }
 
             return unauthorized();
-        } catch (Exception) {
+        } catch (Exception $e) {
+            Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return unauthorized();
         }
     }

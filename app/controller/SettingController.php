@@ -160,6 +160,7 @@ class SettingController
                 return badRequest($e->getMessage());
             }
 
+            $user = $request->user;
             $configs = [];
             $openColumns = ['title', 'interval', 'visitor', 'visitor_password'];
 
@@ -167,7 +168,7 @@ class SettingController
             foreach ($columns as $column) {
                 $_column = Config::find($column);
                 if (!$_column) continue;
-                if (!in_array($column, $openColumns) && $request->user['role'] != 'admin') continue;
+                if (!in_array($column, $openColumns) && (!$user || $request->user['role'] != 'admin')) continue;
                 if ($column == 'visitor_password') {
                     $value = $_column->value;
                     $configs[$column] = !(($value == null));

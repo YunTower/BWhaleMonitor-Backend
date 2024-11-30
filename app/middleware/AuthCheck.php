@@ -22,6 +22,13 @@ class AuthCheck implements MiddlewareInterface
          * 不需要登录则直接放行
          */
         if (in_array($request->action, $noNeedLogin)) {
+            if ($request->cookie('token')) {
+                $user = json_decode(base64_decode($request->cookie('token')), true);
+                if ((isset($user['exp']) && $user['exp'] >= time()) && (isset($user['ip']) && $user['ip'] == $request->getRealIp())) {
+                    $request->token = $request->cookie('token');
+                    $request->user = $user;
+                }
+            }
             return $next($request);
         }
 
@@ -40,6 +47,7 @@ class AuthCheck implements MiddlewareInterface
 
         $request->token = $request->cookie('token');
         $request->user = $user;
+        var_dump($request->user);
         return $next($request);
     }
 }

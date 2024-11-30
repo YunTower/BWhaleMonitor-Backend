@@ -125,14 +125,12 @@ class AuthController
             $user = $request->user;
 
             if ($user['role'] == 'admin') {
-                $_user = Config::where('username', $user['username']);
+                $_user = Config::where('name', 'username')->first();
                 if (!$_user) {
                     return unauthorized('用户不存在');
                 }
 
-                var_dump($_user->get());
-
-                return success('success', ['username' => $_user->username, 'role' => $_user->role]);
+                return success('success', ['username' => $_user->value, 'role' => $user['role']]);
             }
 
             if ($user['role'] == 'visitor') {

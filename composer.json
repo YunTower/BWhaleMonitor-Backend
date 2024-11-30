@@ -44,7 +44,7 @@
     "psr-4": {
       "": "./",
       "app\\": "./app",
-      "App\\": "./app",
+      "App\\": "./app"
     },
     "files": [
       "./support/helpers.php"

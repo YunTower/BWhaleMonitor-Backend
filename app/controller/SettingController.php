@@ -112,7 +112,7 @@ class SettingController
             /**
              * 生成锁定文件
              */
-            $lock_file = __DIR__ . '/../../config/install.lock';
+            $lock_file = __DIR__ . '/../../install.lock';
             $lock_data = [
                 'time' => time()
             ];

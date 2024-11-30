@@ -14,7 +14,7 @@ class AuthCheck implements MiddlewareInterface
         $controller = new ReflectionClass($request->controller);
         $noNeedLogin = $controller->getDefaultProperties()['noNeedLogin'] ?? [];
 
-        if (!check_install() && !$request->path() == 'install') {
+        if (!check_install() && $request->action != 'install') {
             return response_json(200, null, 1501, '系统未安装');
         }
 

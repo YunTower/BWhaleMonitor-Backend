@@ -7,7 +7,7 @@ use support\Response;
 //json
 function response_json($status, $data = null, $code = 0, $msg = 'success'): Response
 {
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode(['code' => $code, 'msg' => $msg, 'data' => $data]));
+    return new Response($status, ['Content-Type' => 'application/json'], json_encode(['code' => $code, 'msg' => $msg, 'data' => $data]));
 }
 
 // 404
@@ -51,7 +51,7 @@ function success($msg = 'success', $data = null, $header = []): Response
  */
 function check_install(): bool
 {
-    return file_exists(base_path('config/install.lock'));
+    return file_exists(base_path('install.lock'));
 }
 
 /**

@@ -127,20 +127,25 @@ class SettingController
 
     public function save(Request $request): Response
     {
-        return false;
         try {
             try {
                 $v = v::input($request->post(), [
                     'title' => v::nullable(v::length(0, 50)->setDefault('蓝鲸服务器探针'))->setName('title'),
                     'interval' => v::intVal()->between(1, 60)->setName('interval'),
                     'visitor' => v::boolVal()->setName('visitor'),
-                    'visitor_password' => v::nullable(v::length(8, 50))->setName('visitor_password')
+                    'visitor_password' => v::nullable(v::length(6, 50))->setName('visitor_password')
                 ]);
             } catch (ValidationException $e) {
                 return badRequest($e->getMessage());
             }
 
-            Config::updateOrInsert($v);
+            if ($v['visitor'] && (!$v['visitor_password'] || strlen($v['visitor_password']) < 6)) {
+                return badRequest('访客密码不能少于6位');
+            }
+
+            foreach ($v as $key => $value) {
+                Config::updateOrInsert(['name' => $key, 'value' => $value]);
+            }
             return success();
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
@@ -175,9 +180,10 @@ class SettingController
                 if ($column == 'visitor_password') {
                     $value = $_column->value;
                     $configs[$column] = !(($value == null));
-                } else {
-                    $configs[$column] = $_column->value;
+                    continue;
                 }
+                if ($column == 'visitor') $_column->value = !($_column->value === '0');
+                $configs[$column] = $_column->value;
             }
             return success('success', $configs);
         } catch (Exception $e) {

@@ -47,7 +47,6 @@ class AuthCheck implements MiddlewareInterface
 
         $request->token = $request->cookie('token');
         $request->user = $user;
-        var_dump($request->user);
         return $next($request);
     }
 }

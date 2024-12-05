@@ -66,6 +66,7 @@ class ConfigController
                     $table->string('cpu')->nullable();
                     $table->string('memory')->nullable();
                     $table->string('disk')->nullable();
+                    $table->string('key');
                     $table->string('status');
                     $table->string('uptime');
                     $table->timestamps();
@@ -110,11 +111,43 @@ class ConfigController
             }
 
             /**
+             * 获取本机IPv4地址
+             */
+            if (!$hostname = gethostname()) {
+                return badRequest('获取服务器名称失败');
+            }
+
+            if ($host = gethostbyname($hostname) == $hostname) {
+                return badRequest('获取服务器IP地址失败');
+            }
+
+            /**
+             * 使用Openssl生成公钥和私钥
+             */
+            $config = [
+                "digest_alg" => "sha512",
+                "private_key_bits" => 4096,
+                "private_key_type" => OPENSSL_KEYTYPE_RSA,
+            ];
+            $res = openssl_pkey_new($config);
+            if (!$res) {
+                var_dump($res);
+               throw new Exception('生成公钥和私钥失败');
+            }
+            openssl_pkey_export($res, $private_key);
+            $public_key = openssl_pkey_get_details($res);
+            $public_key = $public_key["key"];
+
+
+            /**
              * 生成锁定文件
              */
             $lock_file = __DIR__ . '/../../install.lock';
             $lock_data = [
-                'time' => time()
+                'time' => time(),
+                'host' => $host,
+                'public_key' => $public_key,
+                'private_key' => $private_key
             ];
             file_put_contents($lock_file, json_encode($lock_data));
 

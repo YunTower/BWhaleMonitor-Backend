@@ -43,8 +43,25 @@ class ServerController
                 return badRequest('已存在相同IP地址的服务器');
             }
 
-            Server::create($v);
-            return success();
+            if (!$hostname = gethostname()) {
+                return badRequest('获取服务器名称失败');
+            }
+
+            if ($host = gethostbyname($hostname) == $hostname) {
+                return badRequest('获取服务器IP地址失败');
+            }
+
+            // 创建一段28位的密钥，前几位是bwm-node，其他几位由ip和服务器名称组成，要求包含大小写字母、数字和特殊符号
+            $key = 'bwm-node-' . substr(md5($v['ip'] . $v['name']), 0, 28);
+
+            var_dump($key);
+            $data = Server::create($v + [
+                    'key' => $key,
+                    'status' => 1,
+                    'uptime' => 0
+                ]);
+
+            return success('添加成功', $data);
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());

@@ -47,7 +47,7 @@ class SettingController
                 $v = v::input($request->post(), [
                     'title' => v::notEmpty()->length(4, 50)->setName('title'),
                     'username' => v::notEmpty()->length(8, 50)->setName('username'),
-                    'password' => v::notEmpty()->length(8, 50)->setName('password')
+                    'password' => v::notEmpty()->setName('password')
                 ]);
             } catch (ValidationException $e) {
                 return badRequest($e->getMessage());
@@ -62,10 +62,10 @@ class SettingController
                     $table->string('name');
                     $table->string('os');
                     $table->string('ip');
-                    $table->string('location');
-                    $table->string('cpu');
-                    $table->string('memory');
-                    $table->string('disk');
+                    $table->string('location')->nullable();
+                    $table->string('cpu')->nullable();
+                    $table->string('memory')->nullable();
+                    $table->string('disk')->nullable();
                     $table->string('status');
                     $table->string('uptime');
                     $table->timestamps();
@@ -226,8 +226,8 @@ class SettingController
         try {
             try {
                 $v = v::input($request->post(), [
-                    'old_password' => v::notEmpty()->length(8, 50)->setName('old_password'),
-                    'new_password' => v::notEmpty()->length(8, 50)->setName('new_password'),
+                    'old_password' => v::notEmpty()->setName('old_password'),
+                    'new_password' => v::notEmpty()->setName('new_password'),
                 ]);
             } catch (ValidationException $e) {
                 return badRequest($e->getMessage());

@@ -15,7 +15,7 @@ use Webman\Captcha\CaptchaBuilder;
 class AuthController
 {
 
-    protected $noNeedLogin = ['captcha', 'admin', 'guest'];
+    protected $noNeedLogin = ['captcha', 'admin', 'visitor'];
 
     public function captcha(Request $request): Response
     {
@@ -37,7 +37,7 @@ class AuthController
             try {
                 $v = v::input($request->post(), [
                     'username' => v::notEmpty()->length(8, 50)->setName('username'),
-                    'password' => v::notEmpty()->length(8, 50)->setName('password'),
+                    'password' => v::notEmpty()->setName('password'),
                     'captcha' => v::notEmpty()->length(6, 6)->setName('captcha')
                 ]);
             } catch (ValidationException $e) {

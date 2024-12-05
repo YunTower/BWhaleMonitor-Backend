@@ -16,7 +16,7 @@ use app\controller\ConfigController;
 use Webman\Route;
 
 
-Route::group('/setting/edit', function () {
+Route::group('/config/edit', function () {
     Route::patch('/username', [ConfigController::class, 'editUsername']);
     Route::patch('/password', [ConfigController::class, 'editPassword']);
 });

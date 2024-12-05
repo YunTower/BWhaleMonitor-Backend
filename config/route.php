@@ -12,11 +12,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
-use app\controller\SettingController;
+use app\controller\ConfigController;
 use Webman\Route;
 
 
 Route::group('/setting/edit', function () {
-    Route::patch('/username', [SettingController::class, 'editUsername']);
-    Route::patch('/password', [SettingController::class, 'editPassword']);
+    Route::patch('/username', [ConfigController::class, 'editUsername']);
+    Route::patch('/password', [ConfigController::class, 'editPassword']);
 });

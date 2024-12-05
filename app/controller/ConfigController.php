@@ -13,7 +13,7 @@ use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator as v;
 use support\Response;
 
-class SettingController
+class ConfigController
 {
     protected $noNeedLogin = ['install', 'get'];
 

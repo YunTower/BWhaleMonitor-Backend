@@ -207,6 +207,7 @@ class InstallController
 
             return success('', Config::get());
         } catch (Exception $e) {
+            drop_tables('all');
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());
         }

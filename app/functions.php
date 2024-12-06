@@ -4,19 +4,6 @@ use support\Db;
 use support\Log;
 use support\Response;
 
-/**
- * 读取锁定文件的配置内容
- *
- * @param $name
- * @return bool|string
- */
-function lockFile($name): bool|string
-{
-    $lock_file = base_path('install.lock.json');
-    $lock_data = json_decode(file_get_contents($lock_file), true);
-    return $lock_data[$name] ?? false;
-}
-
 //json
 function response_json($status, $data = null, $code = 0, $msg = 'success'): Response
 {
@@ -64,7 +51,7 @@ function success($msg = 'success', $data = null, $header = []): Response
  */
 function check_install(): bool
 {
-    return file_exists(base_path('install.lock'));
+    return file_exists(base_path('install.lock.json'));
 }
 
 /**
@@ -137,3 +124,15 @@ function drop_tables(array|string $tables = null): bool
     return true;
 }
 
+/**
+ * 读取锁定文件的配置内容
+ *
+ * @param $name
+ * @return bool|string
+ */
+function lockFile($name): bool|string
+{
+    $lock_file = base_path('install.lock.json');
+    $lock_data = json_decode(file_get_contents($lock_file), true);
+    return $lock_data[$name] ?? false;
+}

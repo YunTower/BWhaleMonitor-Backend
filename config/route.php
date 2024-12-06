@@ -13,8 +13,10 @@
  */
 
 use app\controller\ConfigController;
+use app\controller\InstallController;
 use Webman\Route;
 
+Route::get('/install/env/check', [InstallController::class, 'envCheck']);
 
 Route::group('/config/edit', function () {
     Route::patch('/username', [ConfigController::class, 'editUsername']);

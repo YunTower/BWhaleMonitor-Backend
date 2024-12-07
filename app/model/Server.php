@@ -21,7 +21,7 @@ class Server extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'id', 'name', 'os', 'ip', 'location', 'cpu', 'memory', 'disk', 'status', 'uptime', 'created_at', 'updated_at'
+        'id', 'name', 'os', 'ip', 'location', 'cpu', 'memory', 'disk', 'key', 'status', 'uptime', 'created_at', 'updated_at'
     ];
 
     /**

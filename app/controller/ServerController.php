@@ -13,11 +13,34 @@ class ServerController
 {
     public function get(Request $request): \support\Response
     {
-        static $data;
-        if (!$data) {
-            $data = file_get_contents(public_path("data/list.json"));
+        try {
+            try {
+                $v = v::input($request->get(), [
+                    'view' => v::nullable(v::stringVal())->setDefault('list')->setName('view'),
+                    'page' => v::nullable(v::numericVal())->setDefault(1)->setName('page'),
+                    'limit' => v::nullable(v::numericVal())->setName('limit'),
+                ]);
+            } catch (ValidationException $e) {
+                return badRequest($e->getMessage());
+            }
+
+            if ($v['view'] == 'list') {
+                $db = Server::select(['id', 'name', 'ip', 'os', 'location', 'cpu', 'memory', 'disk', 'uptime', 'status']);
+            } else {
+                $db = Server::select(['id', 'name', 'os', 'location', 'cpu', 'memory', 'disk', 'status']);
+            }
+
+            $page = $db->paginate($v['limit'], '*', 'page', $v['page']);
+            $data['data'] = $page->items();
+            $data['current_page'] = $page->currentPage(); // 当前页码
+            $data['total_page'] = $page->lastPage(); // 总页数
+            $data['total'] = $page->total(); // 总记录数
+            $data['limit'] = $page->perPage(); // 每页记录数
+            return success('success', $data);
+        } catch (Exception $e) {
+            Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
+            return serverError($e->getMessage());
         }
-        return json($data);
     }
 
     public function search(Request $request): \support\Response

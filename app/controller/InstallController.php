@@ -118,8 +118,8 @@ class InstallController
                     $table->string('memory')->nullable();
                     $table->string('disk')->nullable();
                     $table->string('key');
-                    $table->string('status');
-                    $table->string('uptime');
+                    $table->integer('status');
+                    $table->integer('uptime');
                     $table->timestamps();
                 });
                 Db::schema()->create('yt_monitor_log', function (Blueprint $table) {

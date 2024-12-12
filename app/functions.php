@@ -129,23 +129,12 @@ function drop_tables(array|string $tables = null): bool
  *
  * @param $name
  * @return bool|string
+ * @throws Exception
  */
 function lockFile($name): bool|string
 {
     $lock_file = base_path('install.lock.json');
-    $lock_data = json_decode(file_get_contents($lock_file), true);
-    return $lock_data[$name] ?? false;
-}
-
-/**
- * 读取版本文件
- *
- * @param $name
- * @return bool|string
- */
-function versionFile($name): bool|string
-{
-    $lock_file = base_path('monitor.version.json');
+    if (!is_file($lock_file)) throw new Exception('文件【' . $lock_file . '】不存在');
     $lock_data = json_decode(file_get_contents($lock_file), true);
     return $lock_data[$name] ?? false;
 }

@@ -13,7 +13,7 @@
  */
 
 return [
-    'listen' => 'http://0.0.0.0:8787',
+    'listen' => config('app.http_api'),
     'transport' => 'tcp',
     'context' => [],
     'name' => 'webman',

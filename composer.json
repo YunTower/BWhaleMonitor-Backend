@@ -37,7 +37,8 @@
     "ext-gd": "*",
     "webman/captcha": "^1.0",
     "ext-openssl": "*",
-    "rmccue/requests": "^2.0"
+    "rmccue/requests": "^2.0",
+    "webman/gateway-worker": "^1.0"
   },
   "suggest": {
     "ext-event": "For better performance. "

@@ -29,5 +29,5 @@ return [
     "version" => "0.0.1",
     "type" => "dev",
     "http_api" => "http://0.0.0.0:8096",
-    "websocket_api" => "ws://0.0.0.0:8097"
+    "websocket_api" => "websocket://0.0.0.0:8097"
 ];

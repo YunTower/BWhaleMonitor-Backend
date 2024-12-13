@@ -16,8 +16,7 @@ class LogFormatter extends LineFormatter
 
     public function format(LogRecord|array $record): string
     {
-        $vars = $this->normalizeRecord($record);
-        $color = match (strtolower($vars['level_name'])) {
+        $color = match (strtolower($record['level_name'])) {
             strtolower(LogLevel::INFO) => self::INFO,
             strtolower(LogLevel::WARNING) => self::WARNING,
             strtolower(LogLevel::ERROR) => self::ERROR,

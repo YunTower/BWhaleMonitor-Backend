@@ -26,12 +26,6 @@ return [
                     'class' => Monolog\Formatter\LineFormatter::class,
                     'constructor' => [null, 'Y-m-d H:i:s', true],
                 ],
-            ],
-            [
-                'class' => app\formatter\LogFormatter::class,
-                'constructor' => [
-                    'constructor' => [null, 'Y-m-d H:i:s.u', true],
-                ],
             ]
         ],
     ],
@@ -50,9 +44,13 @@ return [
                 ],
             ],
             [
-                'class' => app\formatter\LogFormatter::class,
+                'class' => \Monolog\Handler\StreamHandler::class,
                 'constructor' => [
-                    'constructor' => [null, 'Y-m-d H:i:s.u', true],
+                    STDOUT,
+                ],
+                'formatter' => [
+                    'class' => \app\formatter\LogFormatter::class,
+                    'constructor' => [null, 'Y-m-d H:i:s', true],
                 ],
             ]
         ],

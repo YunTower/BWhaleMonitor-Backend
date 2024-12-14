@@ -19,7 +19,7 @@ class Events
 
     public static function onConnect($client_id): void
     {
-        self::$log->info("节点[{$_SERVER['REMOTE_ADDR']} ({$client_id})]已连接，等待认证...");
+        self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]已连接，等待认证...");
         // 加入未认证分组
         Gateway::joinGroup($client_id, 'unauthenticated');
         // 发送认证请求
@@ -27,7 +27,7 @@ class Events
         // 设置一个30秒的定时器，超时强制断连
         $_SESSION['auth_timer'] = Timer::add(30, function ($client_id) {
             Gateway::closeClient($client_id);
-            self::$log->info("节点[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证超时，已断开连接");
+            self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证超时，已断开连接");
         }, array($client_id), false);
     }
 
@@ -47,14 +47,14 @@ class Events
             case 'auth':
                 $server = Server::where('key', $message['data']['key'])->first();
                 if (!$server) {
-                    self::$log->error("节点[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证失败，无效的Key");
+                    self::$log->error("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证失败，无效的Key");
                     Gateway::sendToClient($client_id, json_encode(['type' => 'error', 'message' => '认证失败，无效的Key']));
                     Gateway::closeClient($client_id);
                 }
 
                 // 检查IP地址是否一致
                 if ($server->ip !== $_SERVER['REMOTE_ADDR']) {
-                    self::$log->error("节点[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证失败，IP地址不一致");
+                    self::$log->error("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证失败，IP地址不一致");
                     Gateway::sendToClient($client_id, json_encode(['type' => 'error', 'message' => '认证失败，IP地址不一致']));
                     Gateway::closeClient($client_id);
                 }
@@ -64,7 +64,7 @@ class Events
                 Gateway::leaveGroup($client_id, 'unauthenticated');
                 Gateway::joinGroup($client_id, 'onlineServer');
                 Gateway::sendToClient($client_id, json_encode(['type' => 'hello']));
-                self::$log->info("节点[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证成功");
+                self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证成功");
                 break;
             default:
                 Gateway::sendToClient($client_id, json_encode(['type' => 'error', 'message' => '未知消息类型']));
@@ -94,6 +94,6 @@ class Events
         if (isset($_SESSION['heartbeat_timer'])) {
             Timer::del($_SESSION['heartbeat_timer']);
         }
-        self::$log->info("节点[{$_SERVER['REMOTE_ADDR']} ({$client_id})]已断开连接");
+        self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]已断开连接");
     }
 }

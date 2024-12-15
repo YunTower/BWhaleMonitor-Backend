@@ -33,18 +33,22 @@ class Events
 
     public static function onMessage($client_id, $message): void
     {
+        self::$log->info($message);
         $message = json_decode($message, true);
         switch ($message['type']) {
             case 'hi':
-                // 清除心跳
-                Timer::del($_SESSION['heartbeat_timer']);
                 Gateway::sendToClient($client_id, json_encode(['type' => 'hello']));
                 // 开启心跳
-                $_SESSION['heartbeat_timer'] = Timer::add(30, function ($client_id) {
+                $_SESSION['heartbeat_timer'] = Timer::add(60, function ($client_id) {
                     Gateway::closeClient($client_id);
                 }, array($client_id), false);
                 break;
             case 'auth':
+                if (!isset($message['data']['key'])) {
+                    Gateway::sendToClient($client_id, json_encode(['type' => 'error', 'message' => '认证失败，缺少参数']));
+                    Gateway::closeClient($client_id);
+                    return;
+                }
                 $server = Server::where('key', $message['data']['key'])->first();
                 if (!$server) {
                     self::$log->error("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证失败，无效的Key");

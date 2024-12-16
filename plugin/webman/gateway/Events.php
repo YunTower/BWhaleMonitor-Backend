@@ -36,46 +36,54 @@ class Events
         self::$log->info($message);
         $message = json_decode($message, true);
         switch ($message['type']) {
-            case 'hi':
-                Gateway::sendToClient($client_id, json_encode(['type' => 'hello']));
-                // 开启心跳
-                $_SESSION['heartbeat_timer'] = Timer::add(60, function ($client_id) {
+            case 'hello':
+                if ($_SESSION['heartbeat_timer']) {
+                    Timer::del($_SESSION['heartbeat_timer']);
+                }
+                $_SESSION['heartbeat_timer'] = Timer::add(30, function ($client_id) {
                     Gateway::closeClient($client_id);
+                    self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]心跳超时，已断开连接");
                 }, array($client_id), false);
                 break;
             case 'auth':
                 if (!isset($message['data']['key'])) {
-                    Gateway::sendToClient($client_id, json_encode(['type' => 'error', 'message' => '认证失败，缺少参数']));
+                    Gateway::sendToClient($client_id, json_encode(['type' => 'auth', 'status' => 'error', 'message' => '认证失败，缺少参数']));
                     Gateway::closeClient($client_id);
                     return;
                 }
                 $server = Server::where('key', $message['data']['key'])->first();
                 if (!$server) {
                     self::$log->error("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证失败，无效的Key");
-                    Gateway::sendToClient($client_id, json_encode(['type' => 'error', 'message' => '认证失败，无效的Key']));
+                    Gateway::sendToClient($client_id, json_encode(['type' => 'auth', 'status' => 'error', 'message' => '认证失败，无效的Key']));
                     Gateway::closeClient($client_id);
+                    return;
                 }
 
                 // 检查IP地址是否一致
                 if ($server->ip !== $_SERVER['REMOTE_ADDR']) {
                     self::$log->error("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证失败，IP地址不一致");
-                    Gateway::sendToClient($client_id, json_encode(['type' => 'error', 'message' => '认证失败，IP地址不一致']));
+                    Gateway::sendToClient($client_id, json_encode(['type' => 'auth', 'status' => 'error', 'message' => '认证失败，IP地址不一致']));
                     Gateway::closeClient($client_id);
+                    return;
                 }
 
                 // 认证成功
-                Timer::del($_SESSION['auth_timer']);
+                $_SESSION['auth_timer'] && Timer::del($_SESSION['auth_timer']);
                 Gateway::leaveGroup($client_id, 'unauthenticated');
                 Gateway::joinGroup($client_id, 'onlineServer');
-                Gateway::sendToClient($client_id, json_encode(['type' => 'hello']));
+                Gateway::sendToClient($client_id, json_encode(['type' => 'auth', 'status' => 'success', 'message' => '认证成功']));
                 self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证成功");
+                $_SESSION['heartbeat_timer'] = Timer::add(30, function ($client_id) {
+                    Gateway::closeClient($client_id);
+                    self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]心跳超时，已断开连接");
+                }, array($client_id), false);
                 break;
             default:
-                Gateway::sendToClient($client_id, json_encode(['type' => 'error', 'message' => '未知消息类型']));
+                Gateway::sendToClient($client_id, json_encode(['type' => $message['type'], 'status' => 'error', 'message' => '未知消息类型']));
         }
     }
 
-    public static function onClose($client_id)
+    public static function onClose($client_id): void
     {
         //获取所有分组
         $groups = Gateway::getAllGroupIdList();
@@ -92,11 +100,13 @@ class Events
             }
         }
 
-        if ($_SESSION['auth_timer']) {
-            Timer::del($_SESSION['auth_timer']);
-        }
-        if (isset($_SESSION['heartbeat_timer'])) {
-            Timer::del($_SESSION['heartbeat_timer']);
+        if ($_SESSION) {
+            if ($_SESSION['auth_timer']) {
+                Timer::del($_SESSION['auth_timer']);
+            }
+            if (isset($_SESSION['heartbeat_timer'])) {
+                Timer::del($_SESSION['heartbeat_timer']);
+            }
         }
         self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]已断开连接");
     }

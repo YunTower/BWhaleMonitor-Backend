@@ -48,10 +48,6 @@ class AuthController
                 return badRequest('验证码错误');
             }
 
-            if (!preg_match('/^(?=.*[a-zA-Z])(?=.*\d).{8,50}$/', $v['password'])) {
-                return badRequest('密码错误');
-            }
-
             if (Config::find('username')->value != $v['username']) {
                 return badRequest('账号不存在');
             }

@@ -3,6 +3,7 @@
 namespace plugin\webman\gateway;
 
 use app\model\Server;
+use Illuminate\Support\Facades\Gate;
 use support\Log;
 use GatewayWorker\Lib\Gateway;
 use Workerman\Timer;
@@ -73,6 +74,9 @@ class Events
                 Gateway::joinGroup($client_id, 'onlineServer');
                 Gateway::sendToClient($client_id, json_encode(['type' => 'auth', 'status' => 'success', 'message' => '认证成功']));
                 self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]认证成功");
+                // 同步服务器信息
+                Gateway::sendToClient($client_id, json_encode(['type' => 'info']));
+                // 触发被控的心跳机制
                 $_SESSION['heartbeat_timer'] = Timer::add(30, function ($client_id) {
                     Gateway::closeClient($client_id);
                     self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]心跳超时，已断开连接");

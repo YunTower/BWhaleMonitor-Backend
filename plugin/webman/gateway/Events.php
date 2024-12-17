@@ -37,7 +37,7 @@ class Events
         $message = json_decode($message, true);
         switch ($message['type']) {
             case 'hello':
-                if ($_SESSION['heartbeat_timer']) {
+                if ($_SESSION && $_SESSION['heartbeat_timer']) {
                     Timer::del($_SESSION['heartbeat_timer']);
                 }
                 $_SESSION['heartbeat_timer'] = Timer::add(30, function ($client_id) {
@@ -68,7 +68,7 @@ class Events
                 }
 
                 // 认证成功
-                $_SESSION['auth_timer'] && Timer::del($_SESSION['auth_timer']);
+                ($_SESSION && $_SESSION['auth_timer']) && Timer::del($_SESSION['auth_timer']);
                 Gateway::leaveGroup($client_id, 'unauthenticated');
                 Gateway::joinGroup($client_id, 'onlineServer');
                 Gateway::sendToClient($client_id, json_encode(['type' => 'auth', 'status' => 'success', 'message' => '认证成功']));
@@ -100,13 +100,11 @@ class Events
             }
         }
 
-        if ($_SESSION) {
-            if ($_SESSION['auth_timer']) {
-                Timer::del($_SESSION['auth_timer']);
-            }
-            if (isset($_SESSION['heartbeat_timer'])) {
-                Timer::del($_SESSION['heartbeat_timer']);
-            }
+        if ($_SESSION && $_SESSION['auth_timer']) {
+            Timer::del($_SESSION['auth_timer']);
+        }
+        if ($_SESSION && isset($_SESSION['heartbeat_timer'])) {
+            Timer::del($_SESSION['heartbeat_timer']);
         }
         self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]已断开连接");
     }

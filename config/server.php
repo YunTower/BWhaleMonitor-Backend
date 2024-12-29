@@ -13,7 +13,7 @@
  */
 
 return [
-    'listen' => config('app.http_api'),
+    'listen' => 'http://' . config('app.http_host') . ':' . config('app.http_point'),
     'transport' => 'tcp',
     'context' => [],
     'name' => 'webman',

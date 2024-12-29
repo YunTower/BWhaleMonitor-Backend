@@ -28,6 +28,8 @@ return [
     ],
     "version" => "0.0.1",
     "type" => "dev",
-    "http_api" => "http://0.0.0.0:8096",
-    "websocket_api" => "websocket://0.0.0.0:8097"
+    "http_host" => "0.0.0.0",
+    "http_point" => 8096,
+    "websocket_host" => "0.0.0.0",
+    "websocket_point" => 8097
 ];

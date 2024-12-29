@@ -26,8 +26,8 @@ class IndexController
                 'title' => Config::find('title')->first()->value,
                 'php' => PHP_VERSION,
                 'os' => php_uname(),
-                'http_api' => config('app.http_api'),
-                'websocket_api' => config('app.websocket_api'),
+                'http_api' => 'http://' . config('app.http_host') . ':' . config('app.http_point'),
+                'websocket_api' => 'ws://' . config('app.websocket_host') . ':' . config('app.websocket_point'),
                 'install_time' => date('Y-m-d H:i:s', lockFile('time')),
                 'version' => config('app.version') . '-' . config('app.type')
             ];

@@ -97,8 +97,13 @@ class ServerController
         }
     }
 
-    public function delete(Request $request): \support\Response
+    public function delete(Request $request, $id): \support\Response
     {
+        $server = Server::find($id);
+        if (!$server) {
+            return notFound('服务器不存在');
+        }
+        $server->delete();
         return json(['code' => 0, 'msg' => 'ok']);
     }
 

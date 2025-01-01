@@ -22,3 +22,5 @@ Route::group('/config/edit', function () {
     Route::patch('/username', [ConfigController::class, 'editUsername']);
     Route::patch('/password', [ConfigController::class, 'editPassword']);
 });
+
+Route::delete('/server/delete/{id}', [\app\controller\ServerController::class, 'delete']);

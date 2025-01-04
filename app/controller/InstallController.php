@@ -115,7 +115,7 @@ class InstallController
                     $table->string('ip');
                     $table->string('location')->nullable();
                     $table->string('cpu')->nullable();
-                    $table->string('memory')->nullable();
+                    $table->integer('memory')->nullable();
                     $table->string('disk')->nullable();
                     $table->string('key');
                     $table->integer('status');

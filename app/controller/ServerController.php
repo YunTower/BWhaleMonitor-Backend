@@ -24,7 +24,7 @@ class ServerController
                 return badRequest($e->getMessage());
             }
 
-            if ($v['view'] == 'list') {
+            if ($v['view'] === 'list') {
                 $db = Server::select(['id', 'name', 'ip', 'os', 'location', 'cpu', 'memory', 'disk', 'uptime', 'status']);
             } else {
                 $db = Server::select(['id', 'name', 'os', 'location', 'cpu', 'memory', 'disk', 'status']);
@@ -36,6 +36,12 @@ class ServerController
             $data['total_page'] = $page->lastPage(); // 总页数
             $data['total'] = $page->total(); // 总记录数
             $data['limit'] = $page->perPage(); // 每页记录数
+            if ($v['view'] === 'list') {
+                foreach ($data['data'] as $key => $item) {
+                    $data['data'][$key]['cpu'] = json_decode($item['cpu'], true);
+                    $data['data'][$key]['disk'] = json_decode($item['disk'], true);
+                }
+            }
             return success('success', $data);
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);

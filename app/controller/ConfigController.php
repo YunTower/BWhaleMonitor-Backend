@@ -22,7 +22,7 @@ class ConfigController
                     'title' => v::nullable(v::length(0, 50)->setDefault('蓝鲸服务器探针'))->setName('title'),
                     'interval' => v::intVal()->between(1, 60)->setName('interval'),
                     'visitor' => v::boolVal()->setName('visitor'),
-                    ' ' => v::nullable(v::length(6, 50))->setName('visitor_password')
+                    'visitor_password' => v::nullable(v::length(6, 50))->setName('visitor_password')
                 ]);
             } catch (ValidationException $e) {
                 return badRequest($e->getMessage());

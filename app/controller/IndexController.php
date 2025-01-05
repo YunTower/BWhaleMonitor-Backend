@@ -12,7 +12,7 @@ use support\Request;
 
 class IndexController
 {
-    protected $noNeedLogin = ['index'];
+    protected array $noNeedLogin = ['index'];
 
     public function index(Request $request): \support\Response
     {

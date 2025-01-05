@@ -12,7 +12,7 @@ use support\Response;
 
 class ConfigController
 {
-    protected $noNeedLogin = ['get'];
+    protected array $noNeedLogin = ['get'];
 
     public function save(Request $request): Response
     {

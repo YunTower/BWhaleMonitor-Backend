@@ -12,12 +12,11 @@ use support\Db;
 use support\Log;
 use support\Request;
 use support\Response;
-use Workerman\Http\Client;
 use WpOrg\Requests\Requests;
 
 class InstallController
 {
-    protected $noNeedLogin = ['install', 'envCheck'];
+    protected array $noNeedLogin = ['install', 'envCheck'];
 
     public function envCheck(Request $request): Response
     {

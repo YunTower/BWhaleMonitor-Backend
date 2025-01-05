@@ -15,7 +15,7 @@ use Webman\Captcha\CaptchaBuilder;
 class AuthController
 {
 
-    protected $noNeedLogin = ['captcha', 'admin', 'visitor'];
+    protected array $noNeedLogin = ['captcha', 'admin', 'visitor'];
 
     public function captcha(Request $request): Response
     {

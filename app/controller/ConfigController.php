@@ -28,7 +28,7 @@ class ConfigController
                 return badRequest($e->getMessage());
             }
 
-            if ($v['visitor'] && (!$v['visitor_password'] || strlen($v['visitor_password']) < 6)) {
+            if ($v['visitor'] && $v['visitor_password'] !== '' && strlen($v['visitor_password']) < 6) {
                 return badRequest('访客密码不能少于6位');
             }
 

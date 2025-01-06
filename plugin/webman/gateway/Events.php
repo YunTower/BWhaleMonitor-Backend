@@ -4,6 +4,7 @@ namespace plugin\webman\gateway;
 
 use app\model\Server;
 use Illuminate\Support\Facades\Gate;
+use support\Db;
 use support\Log;
 use GatewayWorker\Lib\Gateway;
 use Workerman\Timer;
@@ -81,6 +82,46 @@ class Events
                     Gateway::closeClient($client_id);
                     self::$log->info("被控[{$_SERVER['REMOTE_ADDR']} ({$client_id})]心跳超时，已断开连接");
                 }, array($client_id), false);
+                break;
+            case 'info':
+                $memory = (int)$message['data']['memory']['total'];
+                $cpu_list = array_map(function ($item) {
+                    return [
+                        "id" => $item['cpu'],
+                        "vendorId" => $item['vendorId'],
+                        "physicalId" => $item['physicalId'],
+                        "cores" => $item['cores'],
+                        "name" => $item['modelName'],
+                        "mhz" => $item['mhz']
+                    ];
+                }, $message['data']['cpu']);
+                $disk_list = array_map(function ($item) {
+                    return [
+                        "path" => $item['path'],
+                        "total" => $item['total'],
+                        "free" => $item['free'],
+                        "used" => $item['used']
+                    ];
+                }, $message['data']['disk']);
+
+                $server = Server::where('ip', $_SERVER['REMOTE_ADDR'])->first();
+                if (!$server) {
+                    Gateway::sendToClient($client_id, json_encode(['type' => $message['type'], 'status' => 'error', 'message' => '未知的被控']));
+                    Gateway::closeClient($client_id);
+                    return;
+                }
+
+                $update = [
+                    'status' => 1,
+                    'disk' => json_encode($disk_list),
+                    'memory' => $memory,
+                    'cpu' => json_encode($cpu_list)
+                ];
+                if ($server->os == 'auto') {
+                    $update['os'] = ucwords($message['data']['os']);
+                }
+                $server->update($update);
+                Gateway::sendToClient($client_id, json_encode(['type' => $message['type'], 'status' => 'success', 'message' => '被控信息更新成功']));
                 break;
             default:
                 Gateway::sendToClient($client_id, json_encode(['type' => $message['type'], 'status' => 'error', 'message' => '未知消息类型']));

@@ -38,6 +38,8 @@ class ServerController
             $data['limit'] = $page->perPage(); // 每页记录数
             if ($v['view'] === 'list') {
                 foreach ($data['data'] as $key => $item) {
+                    if (empty($item['cpu'])) continue;
+                    if (empty($item['disk'])) continue;
                     $data['data'][$key]['cpu'] = json_decode($item['cpu'], true);
                     $data['data'][$key]['disk'] = json_decode($item['disk'], true);
                 }

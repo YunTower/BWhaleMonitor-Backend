@@ -165,7 +165,13 @@ class Events
                 Gateway::sendToClient($client_id, json_encode(['type' => $message['type'], 'status' => 'success', 'message' => '被控信息更新成功']));
                 break;
 
+            // 客户端发送监听的服务器
+            // TODO 前端发送的要监听的服务器，根据不同的client_id存在session中
+            case 'listen':
+                break;
+
             // 被控IO上报
+            // TODO 实现被控端IO信息入库功能，当查询到某个用户正在监听此服务器的IO时，转发给该用户
             case 'io':
                 break;
             default:

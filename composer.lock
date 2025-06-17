@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9be38fc86a3990cb1c0211c8d424f49b",
+    "content-hash": "4acc4bc6b69dbe7f1a3258e82151499d",
     "packages": [
         {
             "name": "brick/math",
@@ -2628,6 +2628,40 @@
                 "source": "https://github.com/webman-php/gateway-worker/tree/v1.0.9"
             },
             "time": "2024-04-30T01:05:42+00:00"
+        },
+        {
+            "name": "webman/log",
+            "version": "v1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webman-php/log.git",
+                "reference": "7c2f1c7d032a7a5d3d876da7b9b1145032e11eee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webman-php/log/zipball/7c2f1c7d032a7a5d3d876da7b9b1145032e11eee",
+                "reference": "7c2f1c7d032a7a5d3d876da7b9b1145032e11eee",
+                "shasum": ""
+            },
+            "require": {
+                "workerman/webman-framework": ">=1.5.15"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Webman\\Log\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Webman plugin webman/log",
+            "support": {
+                "issues": "https://github.com/webman-php/log/issues",
+                "source": "https://github.com/webman-php/log/tree/v1.2.1"
+            },
+            "time": "2025-01-10T08:39:44+00:00"
         },
         {
             "name": "workerman/gateway-worker",

@@ -154,4 +154,58 @@ class AuthController
         $response->withBody(json_encode(['code' => 0, 'msg' => 'success']));
         return $response;
     }
+
+    public function menu(Request $request)
+    {
+        try {
+            $menu_list[] = [
+                "path" => "/manager",
+                "name" => "manager",
+                "meta" => [
+                    "title" => "用户中心",
+                    "icon" => "user"
+                ],
+                "children" => [
+                    [
+                        "path" => "server",
+                        "name" => "manager-server",
+                        "children" => [
+                            [
+                                "path" => "",
+                                "name" => "manager-server-index",
+                                "component" => "/manager/server/index",
+                                "meta" => [
+                                    "title" => "服务器管理",
+                                    "icon" => "user-circle"
+                                ]
+                            ],
+                            [
+                                "path" => "details/:id",
+                                "name" => "manager-server-details",
+                                "component" => "/manager/details/index",
+                                "meta" => [
+                                    "title" => "服务器详情",
+                                    "icon" => "user-circle"
+                                ]
+                            ],
+                        ]
+                    ],
+                    [
+                        "path" => "setting",
+                        "name" => "manager-setting",
+                        "component" => "/manager/setting/index",
+                        "meta" => [
+                            "title" => "系统设置",
+                            "icon" => "user-circle"
+                        ]
+                    ],
+                ]
+            ];
+
+            return success('success', $menu_list);
+        } catch (Exception $e) {
+            Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
+            return unauthorized();
+        }
+    }
 }

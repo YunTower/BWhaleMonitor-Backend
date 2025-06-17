@@ -171,14 +171,31 @@ class Events
                 // 缓存客户端想要监听的服务器
                 case 'listen':
                     $v = v::input($message['data'], [
-                        'listen_id' => v::arrayType()->numericVal()->setName('type'),
+                        'listen_id' => v::arrayType()->setName('listen_id'),
                     ]);
-                    session()->set('listen_' . $_SERVER['REMOTE_ADDR'], $v['listen_id']);
+                    $_SESSION['listen_' . $_SERVER['REMOTE_ADDR']] = $v['listen_id'];
                     Gateway::sendToClient($client_id, json_encode(['type' => 'listen', 'status' => 'success', 'message' => '更新成功']));
                     break;
                 // 被控IO上报
                 // TODO 实现被控端IO信息入库功能，当查询到某个用户正在监听此服务器的IO时，转发给该用户
-                case 'io':
+                case 'status':
+                    $v = v::input($message['data'], [
+                        'cpu' => v::notEmpty()->arrayType()->key('used')->setName('cpu'),
+                        'memory' => v::notEmpty()->arrayType()->key('total', v::notEmpty()->number())
+                            ->key('total', v::notEmpty()->number())
+                            ->key('used', v::notEmpty()->number())
+                            ->key('free', v::notEmpty()->number())
+                            ->key('used_percent', v::notEmpty()->number())
+                            ->setName('memory'),
+                        'disk' => v::notEmpty()->arrayType()
+                            ->key('path', v::notEmpty()->stringType())
+                            ->key('total', v::notEmpty()->number())
+                            ->key('used', v::notEmpty()->number())
+                            ->key('free', v::notEmpty()->number())
+                            ->key('used_percent', v::notEmpty()->floatType())
+                            ->setName('disk'),
+                        'network' => v::notEmpty()->arrayType()->setName('network'),
+                    ]);
                     break;
                 default:
                     Gateway::sendToClient($client_id, json_encode(['type' => $message['type'], 'status' => 'error', 'message' => '未知消息类型']));

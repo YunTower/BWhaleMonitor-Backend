@@ -62,7 +62,7 @@ class AuthController
             ]);
             $token_expire = time() + 60 * 60 * 24 * 15;
             $response->cookie('token', base64_encode(json_encode(['username' => $v['username'], 'ip' => $request->getRealIp(), 'role' => 'admin', 'exp' => $token_expire])), $token_expire, '/', '', false, true);
-            $response->withBody(json_encode(['code' => 0, 'msg' => 'success', 'data' => ['username' => $v['username'], 'role' => 'admin']]));
+            $response->withBody(json_encode(['code' => 0, 'msg' => 'success', 'data' => ['user' => ['username' => $v['username'], 'role' => 'admin'], 'routes' => $this->routes()]]));
             return $response;
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
@@ -107,7 +107,7 @@ class AuthController
             ]);
             $token_expire = time() + 60 * 60;
             $response->cookie('token', base64_encode(json_encode(['username' => '访客 ' . $request->getRealIp(), 'ip' => $request->getRealIp(), 'role' => 'visitor', 'exp' => $token_expire])), $token_expire, '/', '', false, true);
-            $response->withBody(json_encode(['code' => 0, 'msg' => 'success', 'data' => ['username' => '访客 ' . $request->getRealIp(), 'role' => 'visitor']]));
+            $response->withBody(json_encode(['code' => 0, 'msg' => 'success', 'data' => ['user' => ['username' => '访客 ' . $request->getRealIp(), 'role' => 'visitor'], 'routes' => $this->routes()]]));
             return $response;
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
@@ -120,17 +120,21 @@ class AuthController
         try {
             $user = $request->user;
 
-            if ($user['role'] == 'admin') {
-                $_user = Config::where('name', 'username')->first();
+            var_dump($user);
+            if ($user['role'] === 'admin') {
+                var_dump($user['username']);
+                $_user = Config::where('username', $user['username'])->first();
+                var_dump($_user);
                 if (!$_user) {
-                    return unauthorized('用户不存在');
+                    return unauthorized('无效的Token');
                 }
 
-                return success('success', ['username' => $_user->value, 'role' => $user['role']]);
+                var_dump($_user);
+                return success('success', ['user' => ['username' => $_user->value, 'role' => $user['role']], 'routes' => $this->routes()]);
             }
 
-            if ($user['role'] == 'visitor') {
-                return success('success', ['username' => $user['username'], 'role' => $user['role']]);
+            if ($user['role'] === 'visitor') {
+                return success('success', ['user' => ['username' => $user['username'], 'role' => $user['role']], 'routes' => $this->routes()]);
             }
 
             return unauthorized();
@@ -155,57 +159,45 @@ class AuthController
         return $response;
     }
 
-    public function menu(Request $request)
+    public function routes(): array
     {
-        try {
-            $menu_list[] = [
-                "path" => "/manager",
-                "name" => "manager",
-                "meta" => [
-                    "title" => "用户中心",
-                    "icon" => "user"
+        $menu_list[] = [
+            "path" => "/manager",
+            "name" => "manager",
+            "meta" => [
+                "title" => "管理",
+            ],
+            "children" => [
+                [
+                    "path" => "server",
+                    "name" => "manager-server-index",
+                    "component" => "/manager/server/index",
+                    "meta" => [
+                        "title" => "服务器管理",
+                        "icon" => "ServerOutline"
+                    ]
                 ],
-                "children" => [
-                    [
-                        "path" => "server",
-                        "name" => "manager-server",
-                        "children" => [
-                            [
-                                "path" => "",
-                                "name" => "manager-server-index",
-                                "component" => "/manager/server/index",
-                                "meta" => [
-                                    "title" => "服务器管理",
-                                    "icon" => "user-circle"
-                                ]
-                            ],
-                            [
-                                "path" => "details/:id",
-                                "name" => "manager-server-details",
-                                "component" => "/manager/details/index",
-                                "meta" => [
-                                    "title" => "服务器详情",
-                                    "icon" => "user-circle"
-                                ]
-                            ],
-                        ]
-                    ],
-                    [
-                        "path" => "setting",
-                        "name" => "manager-setting",
-                        "component" => "/manager/setting/index",
-                        "meta" => [
-                            "title" => "系统设置",
-                            "icon" => "user-circle"
-                        ]
-                    ],
-                ]
-            ];
+                [
+                    "path" => "server/details/:id",
+                    "name" => "manager-server-details",
+                    "component" => "/manager/details/index",
+                    "meta" => [
+                        "title" => "服务器详情",
+                        "show" => false
+                    ]
+                ],
+                [
+                    "path" => "setting",
+                    "name" => "manager-setting",
+                    "component" => "/manager/setting/index",
+                    "meta" => [
+                        "title" => "系统设置",
+                        "icon" => "SettingsOutline"
+                    ]
+                ],
+            ]
+        ];
 
-            return success('success', $menu_list);
-        } catch (Exception $e) {
-            Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
-            return unauthorized();
-        }
+        return $menu_list;
     }
 }

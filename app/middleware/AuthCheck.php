@@ -3,12 +3,16 @@
 namespace app\middleware;
 
 use ReflectionClass;
+use ReflectionException;
 use Webman\MiddlewareInterface;
 use Webman\Http\Response;
 use Webman\Http\Request;
 
 class AuthCheck implements MiddlewareInterface
 {
+    /**
+     * @throws ReflectionException
+     */
     public function process(Request $request, callable $next): Response
     {
         $controller = new ReflectionClass($request->controller);

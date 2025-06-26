@@ -10,6 +10,7 @@ use Respect\Validation\Validator as v;
 use support\Log;
 use support\Request;
 use support\Response;
+use Tinywan\Jwt\JwtToken;
 use Webman\Captcha\CaptchaBuilder;
 
 class AuthController
@@ -56,14 +57,14 @@ class AuthController
                 return badRequest('密码错误');
             }
 
-            $response = response();
-            $response->withHeaders([
-                'Content-Type' => 'application/json',
+            $token = JwtToken::generateToken([
+                'id' => time(),
+                'username' => $v['username'],
+                'ip' => $request->getRealIp()
             ]);
-            $token_expire = time() + 60 * 60 * 24 * 15;
-            $response->cookie('token', base64_encode(json_encode(['username' => $v['username'], 'ip' => $request->getRealIp(), 'role' => 'admin', 'exp' => $token_expire])), $token_expire, '/', '', false, true);
-            $response->withBody(json_encode(['code' => 0, 'msg' => 'success', 'data' => ['user' => ['username' => $v['username'], 'role' => 'admin'], 'routes' => $this->routes()]]));
-            return $response;
+
+            return success('success', [['user' => ['username' => $v['username'], 'routes' => $this->routes()]],
+                ['access_token' => $token['access_token'], 'refresh_token' => $token['refresh_token']]);
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());
@@ -101,14 +102,15 @@ class AuthController
 
             Log::info('访客【' . $request->getRealIp() . '】于' . date('Y-md-m-Y H-i-s') . '登录了系统');
 
-            $response = response();
-            $response->withHeaders([
-                'Content-Type' => 'application/json',
+            $username = '访客 ' . $request->getRealIp();
+            $token = JwtToken::generateToken([
+                'id' => time(),
+                'username' => $username,
+                'ip' => $request->getRealIp()
             ]);
-            $token_expire = time() + 60 * 60;
-            $response->cookie('token', base64_encode(json_encode(['username' => '访客 ' . $request->getRealIp(), 'ip' => $request->getRealIp(), 'role' => 'visitor', 'exp' => $token_expire])), $token_expire, '/', '', false, true);
-            $response->withBody(json_encode(['code' => 0, 'msg' => 'success', 'data' => ['user' => ['username' => '访客 ' . $request->getRealIp(), 'role' => 'visitor'], 'routes' => $this->routes()]]));
-            return $response;
+
+            return success('success', [['user' => ['username' => $username, 'routes' => $this->routes()]],
+                ['access_token' => $token['access_token'], 'refresh_token' => $token['refresh_token']]);
         } catch (Exception $e) {
             Log::error($e->getMessage(), ['error' => $e->getMessage(), 'line' => $e->getLine(), 'code' => $e->getCode(), 'file' => $e->getFile()]);
             return serverError($e->getMessage());
